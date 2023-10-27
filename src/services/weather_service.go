@@ -36,10 +36,11 @@ type IWeatherService interface {
 
 type WeatherService struct {
 	client *http.Client
+	apiURL string
 }
 
-func NewWeatherService(client *http.Client) *WeatherService {
-	return &WeatherService{client: client}
+func NewWeatherService(client *http.Client, apiUrl string) *WeatherService {
+	return &WeatherService{client: client, apiURL: apiUrl}
 }
 
 type HouyrlyWeatherAPIData struct {
@@ -80,7 +81,7 @@ func (s *WeatherService) GetData(ctx context.Context, date time.Time) (WeatherDa
 	response := WeatherData{}
 	date_str := date.Format(time.DateOnly)
 	url := fmt.Sprintf("%s?latitude=%s&longitude=%s&hourly=%s&start_date=%s&end_date=%s",
-		API_WEATHER_URL, BCN_LAT, BCN_LONG, WEATHER_DATA_CONF, date_str, date_str)
+		s.apiURL, BCN_LAT, BCN_LONG, WEATHER_DATA_CONF, date_str, date_str)
 
 	r, err := s.client.Get(url)
 	if err != nil {

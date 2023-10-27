@@ -1,7 +1,13 @@
 package services
 
 import (
+	"context"
+	"golang-weather/src/tests"
+	"net"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -69,4 +75,48 @@ func TestWeatherApiResponse_GetState(t *testing.T) {
 			assert.Equal(t, tC.want, sut.GetState())
 		})
 	}
+}
+
+func TestWeatherService_GetData(t *testing.T) {
+	apiUrl := "127.0.0.1:9999"
+	l, err := net.Listen("tcp", apiUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte(tests.ApiWeatherData))
+		if err != nil {
+			t.Fatal(err)
+		}
+	}))
+	srv.Listener.Close()
+	srv.Listener = l
+	srv.Start()
+	defer srv.Close()
+
+	sut := NewWeatherService(http.DefaultClient, "http://"+apiUrl)
+
+	date := time.Now()
+	want := WeatherData{
+		Date:        date.Format(time.DateOnly),
+		Temperature: 25.8,
+		State:       Rainy,
+	}
+
+	data, err := sut.GetData(context.TODO(), date)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, want, data)
+}
+
+func TestWeatherService_GetData_Error(t *testing.T) {
+	sut := NewWeatherService(http.DefaultClient, "http://notexists.test")
+
+	date := time.Now()
+
+	_, err := sut.GetData(context.TODO(), date)
+
+	assert.NotNil(t, err)
 }
