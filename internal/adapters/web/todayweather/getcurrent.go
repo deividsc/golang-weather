@@ -1,16 +1,16 @@
-package weathertoday
+package todayweather
 
 import (
 	"encoding/json"
-	"golang-weather/src/services"
+	"golang-weather/internal/core/services"
 	"log"
 	"net/http"
 	"time"
 )
 
-type IWeatherHandler interface {
-	GetWeatherData(w http.ResponseWriter, r *http.Request)
-}
+const (
+	WEATHER_DATA_CONF = "temperature,precipitation,cloudcover"
+)
 
 type WeatherHandler struct {
 	service services.IWeatherService

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"golang-weather/src/services"
-	weathertoday "golang-weather/src/weatherToday"
+	weathertoday "golang-weather/internal/adapters/web/todayweather"
+	"golang-weather/internal/core/services"
 	"log"
 	"net/http"
 	"os"

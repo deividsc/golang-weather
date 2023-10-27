@@ -1,10 +1,10 @@
-package weathertoday
+package todayweather
 
 import (
 	"context"
 	"encoding/json"
-	"golang-weather/src/mocks"
-	"golang-weather/src/services"
+	"golang-weather/internal/core/services"
+	"golang-weather/internal/mocks"
 	"net/http/httptest"
 	"testing"
 	"time"

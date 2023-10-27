@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"golang-weather/src/tests"
+	"golang-weather/internal/tests"
 	"net"
 	"net/http"
 	"net/http/httptest"
