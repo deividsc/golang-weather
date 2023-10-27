@@ -41,7 +41,7 @@ func (h *WeatherHandler) GetToday(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	data, err := h.service.GetData(r.Context(), date.Format(time.DateOnly))
+	data, err := h.service.GetData(r.Context(), date)
 	if err != nil {
 		http.Error(w, "Something was wrong!", http.StatusInternalServerError)
 	}

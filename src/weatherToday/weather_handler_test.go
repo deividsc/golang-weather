@@ -17,14 +17,14 @@ type MockWeatherService struct {
 	err      error
 }
 
-func (s *MockWeatherService) GetData(ctx context.Context, date string) (services.WeatherData, error) {
+func (s *MockWeatherService) GetData(ctx context.Context, date time.Time) (services.WeatherData, error) {
 	return s.response, s.err
 }
 
 func TestWeatherHandler(t *testing.T) {
 	mockResponse := services.WeatherData{
 		Date:        time.Now().Format(time.DateOnly),
-		Temperature: "10 Cº",
+		Temperature: 10.0,
 		State:       services.Rainy,
 	}
 	dateOld := time.Now().Add(time.Duration(-1) * time.Hour).Format(time.DateOnly)
