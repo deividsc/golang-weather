@@ -10,9 +10,6 @@ import (
 )
 
 const (
-	API_WEATHER_URL   = "https://api.open-meteo.com/v1/forecast"
-	BCN_LAT           = "41.3926679"
-	BCN_LONG          = "2.1401891"
 	WEATHER_DATA_CONF = "temperature,precipitation,cloudcover"
 )
 
@@ -35,12 +32,14 @@ type IWeatherService interface {
 }
 
 type WeatherService struct {
-	client *http.Client
-	apiURL string
+	client      *http.Client
+	apiURL      string
+	defaultLat  string
+	defaultLong string
 }
 
-func NewWeatherService(client *http.Client, apiUrl string) *WeatherService {
-	return &WeatherService{client: client, apiURL: apiUrl}
+func NewWeatherService(client *http.Client, apiUrl, lat, long string) *WeatherService {
+	return &WeatherService{client: client, apiURL: apiUrl, defaultLat: lat, defaultLong: long}
 }
 
 type HouyrlyWeatherAPIData struct {
@@ -81,7 +80,7 @@ func (s *WeatherService) GetData(ctx context.Context, date time.Time) (WeatherDa
 	response := WeatherData{}
 	date_str := date.Format(time.DateOnly)
 	url := fmt.Sprintf("%s?latitude=%s&longitude=%s&hourly=%s&start_date=%s&end_date=%s",
-		s.apiURL, BCN_LAT, BCN_LONG, WEATHER_DATA_CONF, date_str, date_str)
+		s.apiURL, s.defaultLat, s.defaultLong, WEATHER_DATA_CONF, date_str, date_str)
 
 	r, err := s.client.Get(url)
 	if err != nil {

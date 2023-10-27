@@ -95,7 +95,7 @@ func TestWeatherService_GetData(t *testing.T) {
 	srv.Start()
 	defer srv.Close()
 
-	sut := NewWeatherService(http.DefaultClient, "http://"+apiUrl)
+	sut := NewWeatherService(http.DefaultClient, "http://"+apiUrl, "test", "test")
 
 	date := time.Now()
 	want := WeatherData{
@@ -112,7 +112,7 @@ func TestWeatherService_GetData(t *testing.T) {
 }
 
 func TestWeatherService_GetData_Error(t *testing.T) {
-	sut := NewWeatherService(http.DefaultClient, "http://notexists.test")
+	sut := NewWeatherService(http.DefaultClient, "http://notexists.test", "test", "test")
 
 	date := time.Now()
 

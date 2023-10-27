@@ -1,2 +1,3 @@
 cover.*
-*/*/__debug_*
+*/__debug_*
+.env*
