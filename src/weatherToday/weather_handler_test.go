@@ -63,9 +63,9 @@ func TestWeatherHandler(t *testing.T) {
 			s := MockWeatherService{
 				response: mockResponse,
 			}
-			sut, _ := NewWeatherHandler(&s, mocks.MockLogger)
+			sut := NewWeatherHandler(&s, mocks.MockLogger)
 
-			sut.GetToday(w, req)
+			sut.GetWeatherData(w, req)
 
 			assert.Equal(t, w.Code, tC.statusCode)
 

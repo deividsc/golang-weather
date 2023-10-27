@@ -9,7 +9,7 @@ import (
 )
 
 type IWeatherHandler interface {
-	GetToday(w http.ResponseWriter, r *http.Request)
+	GetWeatherData(w http.ResponseWriter, r *http.Request)
 }
 
 type WeatherHandler struct {
@@ -17,11 +17,11 @@ type WeatherHandler struct {
 	logger  *log.Logger
 }
 
-func NewWeatherHandler(service services.IWeatherService, logger *log.Logger) (*WeatherHandler, error) {
+func NewWeatherHandler(service services.IWeatherService, logger *log.Logger) *WeatherHandler {
 	return &WeatherHandler{
 		service: service,
 		logger:  logger,
-	}, nil
+	}
 }
 
 type WeatherResponse struct {
@@ -30,7 +30,7 @@ type WeatherResponse struct {
 	Data       services.WeatherData
 }
 
-func (h *WeatherHandler) GetToday(w http.ResponseWriter, r *http.Request) {
+func (h *WeatherHandler) GetWeatherData(w http.ResponseWriter, r *http.Request) {
 	date := time.Now()
 	d := r.URL.Path[1:]
 	if d != "" {
