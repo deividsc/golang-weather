@@ -1,5 +1,28 @@
 package tests
 
+const ApiWeatherDataEmptyTemp = `
+{
+	"latitude": 41.39,
+	"longitude": 2.1399994,
+	"generationtime_ms": 0.08499622344970703,
+	"utc_offset_seconds": 0,
+	"timezone": "GMT",
+	"timezone_abbreviation": "GMT",
+	"elevation": 74.0,
+	"hourly_units": {
+	  "time": "iso8601",
+	  "temperature": "°C",
+	  "precipitation": "mm",
+	  "cloudcover": "%"
+	},
+	"hourly": {
+	  "time": [],
+	  "temperature": [],
+	  "precipitation": [],
+	  "cloudcover": []
+	}
+  }
+`
 const ApiWeatherData = `
 {
 	"latitude": 41.39,

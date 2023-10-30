@@ -3,6 +3,7 @@ package todayweather
 import (
 	"context"
 	"encoding/json"
+	"golang-weather/internal/core/domain"
 	"golang-weather/internal/core/services"
 	"golang-weather/internal/mocks"
 	"net/http/httptest"
@@ -13,19 +14,21 @@ import (
 )
 
 type MockWeatherService struct {
-	response services.WeatherData
+	response domain.Weather
 	err      error
 }
 
-func (s *MockWeatherService) GetData(ctx context.Context, date time.Time) (services.WeatherData, error) {
+func (s *MockWeatherService) GetData(ctx context.Context, date time.Time) (domain.Weather, error) {
 	return s.response, s.err
 }
 
 func TestWeatherHandler(t *testing.T) {
-	mockResponse := services.WeatherData{
-		Date:        time.Now().Format(time.DateOnly),
-		Temperature: 10.0,
-		State:       services.Rainy,
+	date := time.Now()
+	mockResponse := WeatherData{
+		Date:           date.Format(time.DateOnly),
+		MaxTemperature: 10.0,
+		MinTemperature: 5.0,
+		Description:    "rainy",
 	}
 	dateOld := time.Now().Add(time.Duration(-1) * time.Hour).Format(time.DateOnly)
 	testCases := []struct {
@@ -33,6 +36,7 @@ func TestWeatherHandler(t *testing.T) {
 		date       string
 		statusCode int
 		data       WeatherResponse
+		errService error
 	}{
 		{
 			desc:       "Empty date should response a weather",
@@ -53,6 +57,15 @@ func TestWeatherHandler(t *testing.T) {
 				Data:       mockResponse,
 			},
 		},
+		{
+			desc:       "If Service response with error should change status code",
+			statusCode: 200,
+			data: WeatherResponse{
+				StatusCode: 400,
+				Message:    "Empty temperature data for selected date",
+			},
+			errService: services.EmptyTemperaturesError{},
+		},
 	}
 
 	for _, tC := range testCases {
@@ -61,13 +74,19 @@ func TestWeatherHandler(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			s := MockWeatherService{
-				response: mockResponse,
+				response: domain.Weather{
+					Date:           date,
+					MaxTemperature: mockResponse.MaxTemperature,
+					MinTemperature: mockResponse.MinTemperature,
+					Description:    domain.Rainy,
+				},
 			}
+			s.err = tC.errService
 			sut := NewWeatherHandler(&s, mocks.MockLogger)
 
 			sut.GetWeatherData(w, req)
 
-			assert.Equal(t, w.Code, tC.statusCode)
+			assert.Equal(t, tC.statusCode, w.Code)
 
 			b := WeatherResponse{}
 			err := json.NewDecoder(w.Body).Decode(&b)

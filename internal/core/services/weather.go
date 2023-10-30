@@ -2,12 +2,13 @@ package services
 
 import (
 	"context"
+	"golang-weather/internal/core/domain"
 	"net/http"
 	"time"
 )
 
 type IWeatherService interface {
-	GetData(ctx context.Context, date time.Time) (WeatherData, error)
+	GetData(ctx context.Context, date time.Time) (domain.Weather, error)
 }
 
 type HouyrlyWeatherAPIData struct {
@@ -21,27 +22,47 @@ type WeatherAPIResponse struct {
 	Hourly    HouyrlyWeatherAPIData `json:"hourly"`
 }
 
-func (s *WeatherAPIResponse) GetState() WeatherState {
-	state := Sunny
+func (s *WeatherAPIResponse) GetState() domain.WeatherDescription {
+	state := domain.Sunny
 	for _, v := range s.Hourly.Precipitation {
-		if v > 0.0 && state == Sunny {
-			state = Cloudy
+		if v > 0.0 && state == domain.Sunny {
+			state = domain.Cloudy
 		}
 		if v > 1.0 {
-			return Rainy
+			return domain.Rainy
 		}
 	}
 	return state
 }
 
-func (s *WeatherAPIResponse) GetHighestTemperature() float32 {
-	var highest float32
+func (s *WeatherAPIResponse) GetHighestTemperature() (float32, error) {
+	tempLen := len(s.Hourly.Temperature)
+	if tempLen == 0 {
+		return 0, EmptyTemperaturesError{}
+	}
+
+	highest := s.Hourly.Temperature[0]
 	for _, v := range s.Hourly.Temperature {
 		if v > highest {
 			highest = v
 		}
 	}
-	return highest
+	return highest, nil
+}
+
+func (s *WeatherAPIResponse) GetLowestTemperature() (float32, error) {
+	tempLen := len(s.Hourly.Temperature)
+	if tempLen == 0 {
+		return 0, EmptyTemperaturesError{}
+	}
+	lowest := s.Hourly.Temperature[0]
+	for i := 1; i < tempLen; i++ {
+		v := s.Hourly.Temperature[i]
+		if v < lowest {
+			lowest = v
+		}
+	}
+	return lowest, nil
 }
 
 type WeatherService struct {

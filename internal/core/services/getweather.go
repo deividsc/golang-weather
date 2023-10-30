@@ -4,27 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"golang-weather/internal/core/domain"
 	"io"
 	"time"
 )
 
-type WeatherState string
-
 const (
-	Cloudy            WeatherState = "cloudy"
-	Sunny             WeatherState = "sunny"
-	Rainy             WeatherState = "rainy"
-	WEATHER_DATA_CONF              = "temperature,precipitation,cloudcover"
+	WEATHER_DATA_CONF = "temperature,precipitation,cloudcover"
 )
 
-type WeatherData struct {
-	Date        string
-	Temperature float32
-	State       WeatherState
-}
-
-func (s *WeatherService) GetData(ctx context.Context, date time.Time) (WeatherData, error) {
-	response := WeatherData{}
+func (s *WeatherService) GetData(ctx context.Context, date time.Time) (domain.Weather, error) {
+	response := domain.Weather{}
 	date_str := date.Format(time.DateOnly)
 	url := fmt.Sprintf("%s?latitude=%s&longitude=%s&hourly=%s&start_date=%s&end_date=%s",
 		s.apiURL, s.defaultLat, s.defaultLong, WEATHER_DATA_CONF, date_str, date_str)
@@ -45,10 +35,19 @@ func (s *WeatherService) GetData(ctx context.Context, date time.Time) (WeatherDa
 	if err != nil {
 		return response, err
 	}
+	highT, err := data.GetHighestTemperature()
+	if err != nil {
+		return response, err
+	}
+	lowT, err := data.GetLowestTemperature()
+	if err != nil {
+		return response, err
+	}
 
-	return WeatherData{
-		Date:        date.Format(time.DateOnly),
-		Temperature: data.GetHighestTemperature(),
-		State:       data.GetState(),
+	return domain.Weather{
+		Date:           date,
+		MaxTemperature: highT,
+		MinTemperature: lowT,
+		Description:    data.GetState(),
 	}, nil
 }
